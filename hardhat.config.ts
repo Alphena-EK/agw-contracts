@@ -50,6 +50,14 @@ const dockerizedNode: NetworkUserConfig = {
     enableRip7212: true,
 };
 
+const abstractTestnet: NetworkUserConfig = {
+    url: "https://api.testnet.abs.xyz",
+    ethNetwork: "sepolia",
+    zksync: true,
+    verifyURL: 'https://api-explorer-verify.testnet.abs.xyz/contract_verification',
+    chainId: 11124,
+}
+
 const config: HardhatUserConfig = {
     zksolc: {
         version: 'latest',
@@ -75,6 +83,7 @@ const config: HardhatUserConfig = {
         },
         zkSyncSepolia,
         zkSyncMainnet,
+        abstractTestnet,
         inMemoryNode,
         dockerizedNode,
     },
