@@ -79,7 +79,7 @@ export function handleNewClaveAccount(event: NewClaveAccountEvent): void {
         account.txCount = 0;
         account.creationDate = ZERO;
     }
-    account.implementation = Bytes.fromHexString(
+    account.implementationAddress = Bytes.fromHexString(
         '0xdd4dD37B22Fc16DBFF3daB6Ecd681798c459f275',
     );
     account.deployDate = event.block.timestamp;
