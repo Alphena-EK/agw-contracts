@@ -5,7 +5,7 @@
  */
 import { assert, expect } from 'chai';
 import type { ec } from 'elliptic';
-import { AbiCoder, concat, parseEther } from 'ethers';
+import { AbiCoder, concat, HDNodeWallet, parseEther } from 'ethers';
 import * as hre from 'hardhat';
 import { Contract, Provider, Wallet, utils } from 'zksync-ethers';
 
@@ -14,15 +14,15 @@ import { ClaveDeployer } from '../../utils/deployer';
 import { fixture } from '../../utils/fixture';
 import { addModule, removeModule } from '../../utils/managers/modulemanager';
 import { VALIDATORS } from '../../utils/names';
-import { prepareTeeTx } from '../../utils/transactions';
+import { prepareEOATx } from '../../utils/transactions';
 
-describe('Clave Contracts - Manager tests', () => {
+describe('Clave Contracts - Module Manager tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;
     let teeValidator: Contract;
     let account: Contract;
-    let keyPair: ec.KeyPair;
+    let wallet: HDNodeWallet;
 
     before(async () => {
         richWallet = getWallet(hre, LOCAL_RICH_WALLETS[0].privateKey);
@@ -31,9 +31,9 @@ describe('Clave Contracts - Manager tests', () => {
             cacheTimeout: -1,
         });
 
-        [, , , , teeValidator, account, keyPair] = await fixture(
+        [, , , , teeValidator, account, wallet] = await fixture(
             deployer,
-            VALIDATORS.TEE,
+            VALIDATORS.EOA,
         );
 
         const accountAddress = await account.getAddress();
@@ -67,7 +67,7 @@ describe('Clave Contracts - Manager tests', () => {
                     teeValidator,
                     mockModule,
                     initData,
-                    keyPair,
+                    wallet,
                 );
                 expect(await account.isModule(await mockModule.getAddress())).to
                     .be.true;
@@ -118,7 +118,7 @@ describe('Clave Contracts - Manager tests', () => {
                     account,
                     teeValidator,
                     mockModule,
-                    keyPair,
+                    wallet,
                 );
 
                 expect(await account.isModule(await mockModule.getAddress())).to
@@ -167,7 +167,7 @@ describe('Clave Contracts - Manager tests', () => {
                     teeValidator,
                     newMockModule,
                     initData,
-                    keyPair,
+                    wallet,
                 );
                 expect(await account.isModule(await newMockModule.getAddress()))
                     .to.be.true;
@@ -188,12 +188,12 @@ describe('Clave Contracts - Manager tests', () => {
                 const addModuleTx = await account.addModule.populateTransaction(
                     moduleAndData,
                 );
-                const tx = await prepareTeeTx(
+                const tx = await prepareEOATx(
                     provider,
                     account,
                     addModuleTx,
                     await teeValidator.getAddress(),
-                    keyPair,
+                    wallet,
                 );
 
                 const txReceipt = await provider.broadcastTransaction(
@@ -219,7 +219,7 @@ describe('Clave Contracts - Manager tests', () => {
                         teeValidator,
                         new Contract(await noInterfaceModule.getAddress(), []),
                         initData,
-                        keyPair,
+                        wallet,
                     );
                     assert(false, 'Should revert');
                 } catch (err) {}

@@ -21,7 +21,7 @@ import {
     preparePasskeyTx,
 } from '../../utils/transactions';
 
-describe('Clave Contracts - Validator tests', () => {
+describe('Clave Contracts - Passkey Validator tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;

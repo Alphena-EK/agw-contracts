@@ -23,7 +23,7 @@ import {
     updateCloudGuardian,
 } from '../../utils/recovery/recovery';
 
-describe('Clave Contracts - Manager tests', () => {
+describe('Clave Contracts - Cloud Recovery tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;

@@ -4,7 +4,7 @@
  * Proprietary and confidential
  */
 import type { ec } from 'elliptic';
-import { AbiCoder, ZeroAddress, parseEther, randomBytes } from 'ethers';
+import { AbiCoder, HDNodeWallet, ZeroAddress, keccak256, parseEther } from 'ethers';
 import type { HardhatRuntimeEnvironment } from 'hardhat/types';
 import type { Wallet } from 'zksync-ethers';
 import { Contract, utils } from 'zksync-ethers';
@@ -12,7 +12,7 @@ import { Contract, utils } from 'zksync-ethers';
 import { deployContract, getWallet } from '../../deploy/utils';
 import type { CallStruct } from '../../typechain-types/contracts/batch/BatchCaller';
 import { CONTRACT_NAMES, PAYMASTERS, type VALIDATORS } from './names';
-import { encodePublicKey } from './p256';
+import { encodePublicKeyK1 } from './p256';
 
 // This class helps deploy Clave contracts for the tests
 export class ClaveDeployer {
@@ -129,13 +129,12 @@ export class ClaveDeployer {
     }
 
     public async account(
-        keyPair: ec.KeyPair,
+        wallet: HDNodeWallet,
         factory: Contract,
         validator: Contract,
     ): Promise<Contract> {
-        const publicKey = encodePublicKey(keyPair);
-
-        const salt = randomBytes(32);
+        
+        const salt = keccak256(wallet.address);
         const call: CallStruct = {
             target: ZeroAddress,
             allowFailure: false,
@@ -145,17 +144,17 @@ export class ClaveDeployer {
 
         const abiCoder = AbiCoder.defaultAbiCoder();
         const initializer =
-            '0x77ba2e75' +
+            '0xb4e581f5' +
             abiCoder
                 .encode(
                     [
-                        'bytes',
+                        'address',
                         'address',
                         'bytes[]',
                         'tuple(address target,bool allowFailure,uint256 value,bytes calldata)',
                     ],
                     [
-                        publicKey,
+                        wallet.address,
                         await validator.getAddress(),
                         [],
                         [

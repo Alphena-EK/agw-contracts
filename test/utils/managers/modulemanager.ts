@@ -4,11 +4,11 @@
  * Proprietary and confidential
  */
 import type { ec } from 'elliptic';
-import { concat } from 'ethers';
+import { concat, HDNodeWallet } from 'ethers';
 import type { Contract, Provider } from 'zksync-ethers';
 import { utils } from 'zksync-ethers';
 
-import { prepareTeeTx } from '../transactions';
+import { prepareEOATx, prepareTeeTx } from '../transactions';
 
 export async function addModule(
     provider: Provider,
@@ -16,19 +16,19 @@ export async function addModule(
     validator: Contract,
     module: Contract,
     initData: string,
-    keyPair: ec.KeyPair,
+    wallet: HDNodeWallet,
 ): Promise<void> {
     const moduleAndData = concat([await module.getAddress(), initData]);
 
     const addModuleTx = await account.addModule.populateTransaction(
         moduleAndData,
     );
-    const tx = await prepareTeeTx(
+    const tx = await prepareEOATx(
         provider,
         account,
         addModuleTx,
         await validator.getAddress(),
-        keyPair,
+        wallet,
     );
     const txReceipt = await provider.broadcastTransaction(
         utils.serializeEip712(tx),
@@ -41,18 +41,18 @@ export async function removeModule(
     account: Contract,
     validator: Contract,
     module: Contract,
-    keyPair: ec.KeyPair,
+    wallet: HDNodeWallet,
 ): Promise<void> {
     const removeModuleTx = await account.removeModule.populateTransaction(
         await module.getAddress(),
     );
 
-    const tx = await prepareTeeTx(
+    const tx = await prepareEOATx(
         provider,
         account,
         removeModuleTx,
         await validator.getAddress(),
-        keyPair,
+        wallet,
     );
 
     const txReceipt = await provider.broadcastTransaction(

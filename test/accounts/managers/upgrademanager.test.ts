@@ -14,14 +14,15 @@ import { ClaveDeployer } from '../../utils/deployer';
 import { fixture } from '../../utils/fixture';
 import { upgradeTx } from '../../utils/managers/upgrademanager';
 import { VALIDATORS } from '../../utils/names';
+import { HDNodeWallet } from 'ethers';
 
-describe('Clave Contracts - Manager tests', () => {
+describe('Clave Contracts - Upgrade Manager tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;
     let teeValidator: Contract;
     let account: Contract;
-    let keyPair: ec.KeyPair;
+    let wallet: HDNodeWallet;
 
     before(async () => {
         richWallet = getWallet(hre, LOCAL_RICH_WALLETS[0].privateKey);
@@ -30,9 +31,9 @@ describe('Clave Contracts - Manager tests', () => {
             cacheTimeout: -1,
         });
 
-        [, , , , teeValidator, account, keyPair] = await fixture(
+        [, , , , teeValidator, account, wallet] = await fixture(
             deployer,
-            VALIDATORS.TEE,
+            VALIDATORS.EOA,
         );
 
         const accountAddress = await account.getAddress();
@@ -57,7 +58,7 @@ describe('Clave Contracts - Manager tests', () => {
         });
 
         it('should upgrade to a new implementation', async () => {
-            expect(await account.implementation()).not.to.be.eq(
+            expect(await account.implementationAddress()).not.to.be.eq(
                 await mockImplementation.getAddress(),
             );
 
@@ -66,16 +67,16 @@ describe('Clave Contracts - Manager tests', () => {
                 account,
                 teeValidator,
                 mockImplementation,
-                keyPair,
+                wallet,
             );
 
-            expect(await account.implementation()).to.eq(
+            expect(await account.implementationAddress()).to.eq(
                 await mockImplementation.getAddress(),
             );
         });
 
         it('should revert upgrading to the same implementation', async () => {
-            expect(await account.implementation()).to.be.eq(
+            expect(await account.implementationAddress()).to.be.eq(
                 await mockImplementation.getAddress(),
             );
 
@@ -85,7 +86,7 @@ describe('Clave Contracts - Manager tests', () => {
                     account,
                     teeValidator,
                     mockImplementation,
-                    keyPair,
+                    wallet,
                 );
                 assert(false, 'Should revert');
             } catch (err) {}

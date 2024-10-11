@@ -7,24 +7,25 @@ import type { ec } from 'elliptic';
 import type { Contract, Provider } from 'zksync-ethers';
 import { utils } from 'zksync-ethers';
 
-import { prepareTeeTx } from '../transactions';
+import { prepareEOATx, prepareTeeTx } from '../transactions';
+import { HDNodeWallet } from 'ethers';
 
 export async function upgradeTx(
     provider: Provider,
     account: Contract,
     validator: Contract,
     newImplementation: Contract,
-    keyPair: ec.KeyPair,
+    wallet: HDNodeWallet,
 ): Promise<void> {
     const upgradeTx = await account.upgradeTo.populateTransaction(
         await newImplementation.getAddress(),
     );
-    const tx = await prepareTeeTx(
+    const tx = await prepareEOATx(
         provider,
         account,
         upgradeTx,
         await validator.getAddress(),
-        keyPair,
+        wallet,
     );
     const txReceipt = await provider.broadcastTransaction(
         utils.serializeEip712(tx),

@@ -5,7 +5,7 @@
  */
 import { assert, expect } from 'chai';
 import type { ec } from 'elliptic';
-import type { BytesLike } from 'ethers';
+import type { BytesLike, HDNodeWallet } from 'ethers';
 import { ZeroAddress, parseEther } from 'ethers';
 import * as hre from 'hardhat';
 import type { Contract } from 'zksync-ethers';
@@ -23,15 +23,15 @@ import {
 } from '../../utils/managers/ownermanager';
 import { VALIDATORS } from '../../utils/names';
 import { encodePublicKey, genKey } from '../../utils/p256';
-import { ethTransfer, prepareTeeTx } from '../../utils/transactions';
+import { ethTransfer, prepareEOATx, prepareTeeTx } from '../../utils/transactions';
 
-describe('Clave Contracts - Manager tests', () => {
+describe('Clave Contracts - Owner Manager tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;
     let teeValidator: Contract;
     let account: Contract;
-    let keyPair: ec.KeyPair;
+    let wallet: HDNodeWallet;
 
     before(async () => {
         richWallet = getWallet(hre, LOCAL_RICH_WALLETS[0].privateKey);
@@ -40,9 +40,9 @@ describe('Clave Contracts - Manager tests', () => {
             cacheTimeout: -1,
         });
 
-        [, , , , teeValidator, account, keyPair] = await fixture(
+        [, , , , teeValidator, account, wallet] = await fixture(
             deployer,
-            VALIDATORS.TEE,
+            VALIDATORS.EOA,
         );
 
         const accountAddress = await account.getAddress();
@@ -52,8 +52,7 @@ describe('Clave Contracts - Manager tests', () => {
 
     describe('Owner Manager', () => {
         it('should check existing key', async () => {
-            const newPublicKey = encodePublicKey(keyPair);
-            expect(await account.r1IsOwner(newPublicKey)).to.be.true;
+            expect(await account.k1IsOwner(wallet.address)).to.be.true;
         });
 
         describe('Full tests with a new r1 key, adding-removing-validating', () => {
@@ -71,13 +70,16 @@ describe('Clave Contracts - Manager tests', () => {
                     account,
                     teeValidator,
                     newPublicKey,
-                    keyPair,
+                    wallet,
                 );
 
                 expect(await account.r1IsOwner(newPublicKey)).to.be.true;
 
-                const expectedOwners = [newPublicKey, encodePublicKey(keyPair)];
-                expect(await account.r1ListOwners()).to.deep.eq(expectedOwners);
+                const expectedR1Owners = [newPublicKey];
+                expect(await account.r1ListOwners()).to.deep.eq(expectedR1Owners);
+
+                const expectedK1Owners = [wallet.address];
+                expect(await account.k1ListOwners()).to.deep.eq(expectedK1Owners);
             });
 
             it('should send a tx with the new key', async () => {
@@ -88,12 +90,12 @@ describe('Clave Contracts - Manager tests', () => {
                 );
 
                 const txData = ethTransfer(richAddress, amount);
-                const tx = await prepareTeeTx(
+                const tx = await prepareEOATx(
                     provider,
                     account,
                     txData,
                     await teeValidator.getAddress(),
-                    newKeyPair,
+                    wallet,
                 );
                 const txReceipt = await provider.broadcastTransaction(
                     utils.serializeEip712(tx),
@@ -114,14 +116,12 @@ describe('Clave Contracts - Manager tests', () => {
                     account,
                     teeValidator,
                     newPublicKey,
-                    keyPair,
+                    wallet,
                 );
 
                 expect(await account.r1IsOwner(newPublicKey)).to.be.false;
 
-                const expectedOwners = [encodePublicKey(keyPair)];
-
-                expect(await account.r1ListOwners()).to.deep.eq(expectedOwners);
+                expect(await account.r1ListOwners()).to.deep.eq([]);
             });
 
             it('should not send any tx with the removed key', async () => {
@@ -159,12 +159,12 @@ describe('Clave Contracts - Manager tests', () => {
                     account,
                     teeValidator,
                     newK1Address,
-                    keyPair,
+                    wallet,
                 );
 
                 expect(await account.k1IsOwner(newK1Address)).to.be.true;
 
-                const expectedOwners = [newK1Address];
+                const expectedOwners = [newK1Address, wallet.address];
                 expect(await account.k1ListOwners()).to.deep.eq(expectedOwners);
             });
 
@@ -176,11 +176,11 @@ describe('Clave Contracts - Manager tests', () => {
                     account,
                     teeValidator,
                     newK1Address,
-                    keyPair,
+                    wallet,
                 );
 
                 expect(await account.k1IsOwner(newK1Address)).to.be.false;
-                const expectedOwners: Array<string> = [];
+                const expectedOwners: Array<string> = [wallet.address];
                 expect(await account.k1ListOwners()).to.deep.eq(expectedOwners);
             });
         });
@@ -196,7 +196,7 @@ describe('Clave Contracts - Manager tests', () => {
                     account,
                     teeValidator,
                     newPublicKey,
-                    keyPair,
+                    wallet,
                 );
 
                 const newK1Address = await Wallet.createRandom().getAddress();
@@ -205,18 +205,17 @@ describe('Clave Contracts - Manager tests', () => {
                     account,
                     teeValidator,
                     newK1Address,
-                    keyPair,
+                    wallet,
                 );
 
                 const expectedR1Owners = [
                     newPublicKey,
-                    encodePublicKey(keyPair),
                 ];
                 expect(await account.r1ListOwners()).to.deep.eq(
                     expectedR1Owners,
                 );
 
-                const expectedK1Owners = [newK1Address];
+                const expectedK1Owners = [newK1Address, wallet.address];
                 expect(await account.k1ListOwners()).to.deep.eq(
                     expectedK1Owners,
                 );
@@ -226,7 +225,7 @@ describe('Clave Contracts - Manager tests', () => {
                     account,
                     teeValidator,
                     newPublicKey,
-                    keyPair,
+                    wallet,
                 );
                 replacedKeyPair = newKeyPair;
 
@@ -253,6 +252,7 @@ describe('Clave Contracts - Manager tests', () => {
                         account,
                         teeValidator,
                         invalidPubkey,
+                        wallet,
                         replacedKeyPair,
                     );
                     assert(false, 'Should revert');
@@ -289,6 +289,7 @@ describe('Clave Contracts - Manager tests', () => {
                     account,
                     teeValidator,
                     newPublicKey,
+                    wallet,
                     replacedKeyPair,
                 );
 
@@ -308,6 +309,7 @@ describe('Clave Contracts - Manager tests', () => {
                     account,
                     teeValidator,
                     newAddress,
+                    wallet,
                     replacedKeyPair,
                 );
 
@@ -327,6 +329,7 @@ describe('Clave Contracts - Manager tests', () => {
                     account,
                     teeValidator,
                     encodePublicKey(replacedKeyPair),
+                    wallet,
                     replacedKeyPair,
                 );
 
@@ -355,6 +358,7 @@ describe('Clave Contracts - Manager tests', () => {
                         account,
                         teeValidator,
                         ZeroAddress,
+                        wallet,
                         replacedKeyPair,
                     );
                     assert(false, 'Should revert');
@@ -368,6 +372,7 @@ describe('Clave Contracts - Manager tests', () => {
                         account,
                         teeValidator,
                         encodePublicKey(replacedKeyPair),
+                        wallet,
                         replacedKeyPair,
                     );
                     assert(false, 'Should revert');
@@ -386,6 +391,7 @@ describe('Clave Contracts - Manager tests', () => {
                         account,
                         teeValidator,
                         invalidPubkey,
+                        wallet,
                         replacedKeyPair,
                     );
                     assert(false, 'Should revert');

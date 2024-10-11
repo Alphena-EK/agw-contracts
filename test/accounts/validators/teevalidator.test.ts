@@ -21,7 +21,7 @@ import {
     prepareTeeTx,
 } from '../../utils/transactions';
 
-describe('Clave Contracts - Validator tests', () => {
+describe('Clave Contracts - TEE Validator tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;

@@ -24,7 +24,7 @@ import {
 } from '../../utils/recovery/recovery';
 import { ethTransfer, prepareTeeTx } from '../../utils/transactions';
 
-describe('Clave Contracts - Manager tests', () => {
+describe('Clave Contracts - Social Recovery tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;

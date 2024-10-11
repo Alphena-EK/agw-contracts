@@ -7,25 +7,38 @@ import type { ec } from 'elliptic';
 import type { Contract, Provider } from 'zksync-ethers';
 import { utils } from 'zksync-ethers';
 
-import { prepareTeeTx } from '../transactions';
+import { prepareEOATx, prepareTeeTx } from '../transactions';
+import { HDNodeWallet } from 'ethers';
 
 export async function addR1Key(
     provider: Provider,
     account: Contract,
     validator: Contract,
     newPublicKey: string,
-    keyPair: ec.KeyPair,
+    wallet: HDNodeWallet,
+    ecKeyPair?: ec.KeyPair,
 ): Promise<void> {
     const addOwnerTx = await account.r1AddOwner.populateTransaction(
         newPublicKey,
     );
-    const tx = await prepareTeeTx(
-        provider,
-        account,
-        addOwnerTx,
-        await validator.getAddress(),
-        keyPair,
-    );
+    let tx;
+    if (ecKeyPair) {
+        tx = await prepareTeeTx(
+            provider,
+            account,
+            addOwnerTx,
+            await validator.getAddress(),
+            ecKeyPair,
+        );
+    } else {
+        tx = await prepareEOATx(
+            provider,
+            account,
+            addOwnerTx,
+            await validator.getAddress(),
+            wallet,
+        );
+    }
 
     const txReceipt = await provider.broadcastTransaction(
         utils.serializeEip712(tx),
@@ -38,18 +51,30 @@ export async function addK1Key(
     account: Contract,
     validator: Contract,
     newK1Address: string,
-    keyPair: ec.KeyPair,
+    wallet: HDNodeWallet,
+    ecKeyPair?: ec.KeyPair,
 ): Promise<void> {
     const addOwnerTx = await account.k1AddOwner.populateTransaction(
         newK1Address,
     );
-    const tx = await prepareTeeTx(
-        provider,
-        account,
-        addOwnerTx,
-        await validator.getAddress(),
-        keyPair,
-    );
+    let tx;
+    if (ecKeyPair) {
+        tx = await prepareTeeTx(
+            provider,
+            account,
+            addOwnerTx,
+            await validator.getAddress(),
+            ecKeyPair,
+        );
+    } else {
+        tx = await prepareEOATx(
+            provider,
+            account,
+            addOwnerTx,
+            await validator.getAddress(),
+            wallet,
+        );
+    }
     const txReceipt = await provider.broadcastTransaction(
         utils.serializeEip712(tx),
     );
@@ -61,19 +86,30 @@ export async function removeR1Key(
     account: Contract,
     validator: Contract,
     removingPublicKey: string,
-    keyPair: ec.KeyPair,
+    wallet: HDNodeWallet,
+    ecKeyPair?: ec.KeyPair,
 ): Promise<void> {
     const removeOwnerTxData = await account.r1RemoveOwner.populateTransaction(
         removingPublicKey,
     );
-    const tx = await prepareTeeTx(
-        provider,
-        account,
-        removeOwnerTxData,
-        await validator.getAddress(),
-        keyPair,
-    );
-
+    let tx;
+    if (ecKeyPair) {
+        tx = await prepareTeeTx(
+            provider,
+            account,
+            removeOwnerTxData,
+            await validator.getAddress(),
+            ecKeyPair,
+        );
+    } else {
+        tx = await prepareEOATx(
+            provider,
+            account,
+            removeOwnerTxData,
+            await validator.getAddress(),
+            wallet,
+        );
+    }
     const txReceipt = await provider.broadcastTransaction(
         utils.serializeEip712(tx),
     );
@@ -85,17 +121,17 @@ export async function removeK1Key(
     account: Contract,
     validator: Contract,
     removingAddress: string,
-    keyPair: ec.KeyPair,
+    wallet: HDNodeWallet,
 ): Promise<void> {
     const removeOwnerTx = await account.k1RemoveOwner.populateTransaction(
         removingAddress,
     );
-    const tx = await prepareTeeTx(
+    const tx = await prepareEOATx(
         provider,
         account,
         removeOwnerTx,
         await validator.getAddress(),
-        keyPair,
+        wallet,
     );
     const txReceipt = await provider.broadcastTransaction(
         utils.serializeEip712(tx),
@@ -108,19 +144,31 @@ export async function resetOwners(
     account: Contract,
     validator: Contract,
     newPublicKey: string,
-    keyPair: ec.KeyPair,
+    wallet: HDNodeWallet,
+    ecKeyPair?: ec.KeyPair,
 ): Promise<void> {
     const resetOwnersTx = await account.resetOwners.populateTransaction(
         newPublicKey,
     );
-    const tx = await prepareTeeTx(
-        provider,
-        account,
-        resetOwnersTx,
-        await validator.getAddress(),
-        keyPair,
-    );
 
+    let tx;
+    if (ecKeyPair) {
+        tx = await prepareTeeTx(
+            provider,
+            account,
+            resetOwnersTx,
+            await validator.getAddress(),
+            ecKeyPair,
+        );
+    } else {
+        tx = await prepareEOATx(
+            provider,
+            account,
+            resetOwnersTx,
+            await validator.getAddress(),
+            wallet,
+        );
+    }
     const txReceipt = await provider.broadcastTransaction(
         utils.serializeEip712(tx),
     );

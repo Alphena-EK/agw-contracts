@@ -21,7 +21,7 @@ import {
 import { VALIDATORS } from '../../utils/names';
 import { ethTransfer, prepareMockTx } from '../../utils/transactions';
 
-describe('Clave Contracts - Manager tests', () => {
+describe('Clave Contracts - Validator Manager tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;
@@ -38,7 +38,7 @@ describe('Clave Contracts - Manager tests', () => {
 
         [, , , , teeValidator, account, keyPair] = await fixture(
             deployer,
-            VALIDATORS.TEE,
+            VALIDATORS.EOA,
         );
 
         const accountAddress = await account.getAddress();

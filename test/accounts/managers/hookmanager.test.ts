@@ -4,8 +4,7 @@
  * Proprietary and confidential
  */
 import { assert, expect } from 'chai';
-import type { ec } from 'elliptic';
-import { AbiCoder, randomBytes, solidityPackedKeccak256 } from 'ethers';
+import { AbiCoder, HDNodeWallet, randomBytes, solidityPackedKeccak256 } from 'ethers';
 import * as hre from 'hardhat';
 import { Contract } from 'zksync-ethers';
 import { Provider, Wallet, utils } from 'zksync-ethers';
@@ -15,15 +14,15 @@ import { ClaveDeployer } from '../../utils/deployer';
 import { fixture } from '../../utils/fixture';
 import { addHook, removeHook } from '../../utils/managers/hookmanager';
 import { HOOKS, VALIDATORS } from '../../utils/names';
-import { ethTransfer, prepareTeeTx } from '../../utils/transactions';
+import { ethTransfer, prepareEOATx } from '../../utils/transactions';
 
-describe('Clave Contracts - Manager tests', () => {
+describe('Clave Contracts - Hook Manager tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;
     let teeValidator: Contract;
     let account: Contract;
-    let keyPair: ec.KeyPair;
+    let wallet: HDNodeWallet;
 
     before(async () => {
         richWallet = getWallet(hre, LOCAL_RICH_WALLETS[0].privateKey);
@@ -32,9 +31,9 @@ describe('Clave Contracts - Manager tests', () => {
             cacheTimeout: -1,
         });
 
-        [, , , , teeValidator, account, keyPair] = await fixture(
+        [, , , , teeValidator, account, wallet] = await fixture(
             deployer,
-            VALIDATORS.TEE,
+            VALIDATORS.EOA,
         );
 
         const accountAddress = await account.getAddress();
@@ -68,7 +67,7 @@ describe('Clave Contracts - Manager tests', () => {
                     teeValidator,
                     validationHook,
                     HOOKS.VALIDATION,
-                    keyPair,
+                    wallet,
                 );
 
                 expect(await account.isHook(await validationHook.getAddress()))
@@ -105,12 +104,12 @@ describe('Clave Contracts - Manager tests', () => {
                     AbiCoder.defaultAbiCoder().encode(['bool'], [false]),
                 ];
 
-                const tx = await prepareTeeTx(
+                const tx = await prepareEOATx(
                     provider,
                     account,
                     transfer,
                     await teeValidator.getAddress(),
-                    keyPair,
+                    wallet,
                     hookData,
                 );
 
@@ -134,7 +133,7 @@ describe('Clave Contracts - Manager tests', () => {
                     teeValidator,
                     validationHook,
                     HOOKS.VALIDATION,
-                    keyPair,
+                    wallet,
                     hookData,
                 );
                 expect(await account.isHook(await validationHook.getAddress()))
@@ -166,7 +165,7 @@ describe('Clave Contracts - Manager tests', () => {
                     teeValidator,
                     executionHook,
                     HOOKS.EXECUTION,
-                    keyPair,
+                    wallet,
                 );
 
                 expect(await account.isHook(await executionHook.getAddress()))
@@ -188,7 +187,7 @@ describe('Clave Contracts - Manager tests', () => {
                     teeValidator,
                     executionHook,
                     HOOKS.EXECUTION,
-                    keyPair,
+                    wallet,
                 );
                 expect(await account.isHook(await executionHook.getAddress()))
                     .to.be.false;
@@ -251,7 +250,7 @@ describe('Clave Contracts - Manager tests', () => {
                         teeValidator,
                         new Contract(await noInterfaceHook.getAddress(), []),
                         HOOKS.VALIDATION,
-                        keyPair,
+                        wallet,
                     );
                     assert(false, 'Should revert');
                 } catch (err) {}
@@ -263,7 +262,7 @@ describe('Clave Contracts - Manager tests', () => {
                         teeValidator,
                         new Contract(await noInterfaceHook.getAddress(), []),
                         HOOKS.EXECUTION,
-                        keyPair,
+                        wallet,
                     );
                     assert(false, 'Should revert');
                 } catch (err) {}
@@ -279,12 +278,12 @@ describe('Clave Contracts - Manager tests', () => {
                     HOOKS.VALIDATION,
                 );
 
-                const tx = await prepareTeeTx(
+                const tx = await prepareEOATx(
                     provider,
                     account,
                     addHookTx,
                     await teeValidator.getAddress(),
-                    keyPair,
+                    wallet,
                 );
 
                 const txReceipt = await provider.broadcastTransaction(
@@ -304,7 +303,7 @@ describe('Clave Contracts - Manager tests', () => {
                         teeValidator,
                         validationHook,
                         HOOKS.VALIDATION,
-                        keyPair,
+                        wallet,
                     );
 
                     const key = randomBytes(32);
@@ -324,7 +323,7 @@ describe('Clave Contracts - Manager tests', () => {
                         teeValidator,
                         executionHook,
                         HOOKS.EXECUTION,
-                        keyPair,
+                        wallet,
                         hookData,
                     );
                 });
@@ -367,12 +366,12 @@ describe('Clave Contracts - Manager tests', () => {
                     const hookData = [
                         AbiCoder.defaultAbiCoder().encode(['bool'], [true]),
                     ];
-                    const tx = await prepareTeeTx(
+                    const tx = await prepareEOATx(
                         provider,
                         account,
                         transfer,
                         await teeValidator.getAddress(),
-                        keyPair,
+                        wallet,
                         hookData,
                     );
 
@@ -393,12 +392,12 @@ describe('Clave Contracts - Manager tests', () => {
                         AbiCoder.defaultAbiCoder().encode(['bool'], [false]),
                     ];
 
-                    const tx = await prepareTeeTx(
+                    const tx = await prepareEOATx(
                         provider,
                         account,
                         transfer,
                         await teeValidator.getAddress(),
-                        keyPair,
+                        wallet,
                         hookData,
                     );
 
