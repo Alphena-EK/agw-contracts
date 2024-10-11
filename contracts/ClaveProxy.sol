@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.17;
 
-import {EfficientCall} from "@matterlabs/zksync-contracts/l2/system-contracts/libraries/EfficientCall.sol";
+import {EfficientCall} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/EfficientCall.sol';
 
 contract ClaveProxy {
     event Upgraded(address indexed implementation);
@@ -27,10 +27,7 @@ contract ClaveProxy {
     fallback() external payable {
         address impl;
         assembly {
-            impl := and(
-                sload(_IMPLEMENTATION_SLOT),
-                0xffffffffffffffffffffffffffffffffffffffff
-            )
+            impl := and(sload(_IMPLEMENTATION_SLOT), 0xffffffffffffffffffffffffffffffffffffffff)
         }
 
         bool success = EfficientCall.rawDelegateCall(gasleft(), impl, msg.data);
