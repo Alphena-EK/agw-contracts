@@ -46,7 +46,7 @@ export class ClaveDeployer {
         return await deployContract(
             this.hre,
             CONTRACT_NAMES.REGISTRY,
-            undefined,
+            [this.deployerWallet.address],
             {
                 wallet: this.deployerWallet,
                 silent: true,
@@ -90,6 +90,7 @@ export class ClaveDeployer {
                 await implementation.getAddress(),
                 await registry.getAddress(),
                 bytecodeHash,
+                this.deployerWallet.address,
                 this.deployerWallet.address,
             ],
             {
@@ -197,8 +198,11 @@ export class ClaveDeployer {
 
     public async paymaster(
         name: PAYMASTERS,
-        config: {
-            gasless?: [registryAddress: string, limit: number];
+        config:  {
+            gasless?: {
+                registryAddress: string,
+                limit: number
+            };
             erc20?: Array<{
                 tokenAddress: string;
                 decimals: number;
@@ -217,7 +221,10 @@ export class ClaveDeployer {
         return await deployContract(
             this.hre,
             name,
-            name == PAYMASTERS.GASLESS ? config.gasless : [config.erc20],
+            [
+                ...Object.values(name == PAYMASTERS.GASLESS ? config.gasless! : [config.erc20!]),
+                this.deployerWallet.address,
+            ],
             {
                 wallet: this.deployerWallet,
                 silent: true,

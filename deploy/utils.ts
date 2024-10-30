@@ -9,6 +9,7 @@ import '@matterlabs/hardhat-zksync-verify/dist/src/type-extensions';
 import { ethers } from 'ethers';
 import type { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { Provider, Wallet, utils } from 'zksync-ethers';
+import { DeploymentType } from 'zksync-ethers/build/types';
 
 export const getProvider = (hre: HardhatRuntimeEnvironment): Provider => {
     const rpcUrl = hre.network.config.url;
@@ -96,6 +97,8 @@ export const deployContract = async (
     contractArtifactName: string,
     constructorArguments?: Array<unknown>,
     options?: DeployContractOptions,
+    deploymentType?: DeploymentType,
+    
 ): Promise<ethers.Contract> => {
     const log = (message: string): void => {
         if (!options?.silent) console.log(message);
@@ -133,7 +136,7 @@ export const deployContract = async (
     await verifyEnoughBalance(wallet, deploymentFee);
 
     // Deploy the contract to zkSync
-    const contract = await deployer.deploy(artifact, constructorArguments);
+    const contract = await deployer.deploy(artifact, constructorArguments, deploymentType);
     const address = await contract.getAddress();
     const constructorArgs =
         contract.interface.encodeDeploy(constructorArguments);
