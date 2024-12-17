@@ -25,7 +25,6 @@ describe('Clave Contracts - Account tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;
-    let batchCaller: Contract;
     let eoaValidator: Contract;
     let keyPair: ec.KeyPair;
     let wallet: HDNodeWallet;
@@ -40,11 +39,11 @@ describe('Clave Contracts - Account tests', () => {
             cacheTimeout: -1,
         });
 
-        ({batchCaller, eoaValidator, account, wallet, keyPair} = await fixture(deployer, VALIDATORS.EOA))
+        ({eoaValidator, account, wallet, keyPair} = await fixture(deployer, VALIDATORS.EOA))
 
         const accountAddress = await account.getAddress();
 
-        await deployer.fund(10000, accountAddress);
+        await deployer.fund(500, accountAddress);
 
         erc20 = await deployer.deployCustomContract('MockStable', []);
         await erc20.mint(accountAddress, parseEther('100000'));
@@ -152,7 +151,7 @@ describe('Clave Contracts - Account tests', () => {
         });
 
         it('should send batch tx / delegate call', async () => {
-            const amount = parseEther('100');
+            const amount = parseEther('10');
             const delta = parseEther('0.01');
 
             const [accountERC20BalanceBefore, richERC20BalanceBefore] =
@@ -182,7 +181,6 @@ describe('Clave Contracts - Account tests', () => {
             const batchTx = await prepareBatchTx(
                 provider,
                 account,
-                await batchCaller.getAddress(),
                 calls,
                 await eoaValidator.getAddress(),
                 keyPair,

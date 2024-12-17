@@ -26,7 +26,6 @@ describe('Clave Contracts - Gasless Paymaster tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;
-    let batchCaller: Contract;
     let registry: Contract;
     let eoaValidator: Contract;
     let account: Contract;
@@ -43,14 +42,14 @@ describe('Clave Contracts - Gasless Paymaster tests', () => {
             cacheTimeout: -1,
         });
 
-        ({ batchCaller, registry, eoaValidator, account, wallet, keyPair } = await fixture(
+        ({ registry, eoaValidator, account, wallet, keyPair } = await fixture(
             deployer,
             VALIDATORS.EOA
         ));
 
         const accountAddress = await account.getAddress();
 
-        await deployer.fund(10000, accountAddress);
+        await deployer.fund(100, accountAddress);
 
         erc20 = await deployer.deployCustomContract('MockStable', []);
         await erc20.mint(accountAddress, parseEther('100000'));
@@ -62,6 +61,8 @@ describe('Clave Contracts - Gasless Paymaster tests', () => {
             },
         });
 
+        await gaslessPaymaster.updateMaxSponsoredEth(parseEther('1000'));
+
         await deployer.fund(50, await gaslessPaymaster.getAddress());
     });
 
@@ -71,7 +72,7 @@ describe('Clave Contracts - Gasless Paymaster tests', () => {
         ).to.eq(parseEther('50'));
 
         expect(await provider.getBalance(await account.getAddress())).to.eq(
-            parseEther('10000'),
+            parseEther('100'),
         );
 
         expect(await erc20.balanceOf(await account.getAddress())).to.be.eq(
@@ -156,7 +157,7 @@ describe('Clave Contracts - Gasless Paymaster tests', () => {
         });
 
         it('should send ERC20 token / contract interaction and do not pay gas', async () => {
-            const amount = parseEther('100');
+            const amount = parseEther('10');
 
             const [accountERC20BalanceBefore, richERC20BalanceBefore] =
                 await Promise.all([
@@ -222,7 +223,7 @@ describe('Clave Contracts - Gasless Paymaster tests', () => {
         });
 
         it('should send batch tx / delegate call and do not pay gas', async () => {
-            const amount = parseEther('100');
+            const amount = parseEther('1');
 
             const [accountERC20BalanceBefore, richERC20BalanceBefore] =
                 await Promise.all([
@@ -251,7 +252,6 @@ describe('Clave Contracts - Gasless Paymaster tests', () => {
             const batchTx = await prepareBatchTx(
                 provider,
                 account,
-                await batchCaller.getAddress(),
                 calls,
                 await eoaValidator.getAddress(),
                 keyPair,

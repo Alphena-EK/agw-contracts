@@ -60,7 +60,7 @@ const abstractTestnet: NetworkUserConfig = {
 
 const config: HardhatUserConfig = {
     zksolc: {
-        version: 'latest',
+        version: '1.5.6',
         settings: {
             enableEraVMExtensions: true,
             optimizer: process.env.TEST
@@ -89,6 +89,9 @@ const config: HardhatUserConfig = {
     },
     solidity: {
         version: '0.8.26',
+        settings: {
+            evmVersion: 'cancun',
+        }
     },
 };
 
