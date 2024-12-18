@@ -4,6 +4,7 @@
  * Proprietary and confidential
  */
 import {
+    keccak256,
     ZeroAddress,
     zeroPadValue
 } from 'ethers';
@@ -27,10 +28,10 @@ export default async function (): Promise<void> {
 
     const initialOwner = fundingWallet.address;
 
-     await deployContract(hre, 'BatchCaller', undefined, {
+    const sessionKeyValidator = await deployContract(hre, 'SessionKeyValidator', undefined, {
         wallet: fundingWallet,
         silent: false,
-    }, 'create');
+    }, 'create2');
 
     eoaValidator = await deployContract(hre, 'EOAValidator', undefined, {
         wallet: fundingWallet,
@@ -40,7 +41,7 @@ export default async function (): Promise<void> {
     implementation = await deployContract(
         hre,
         'AGWAccount',
-        [await batchCaller.getAddress()],
+        [],
         {
             wallet: fundingWallet,
             silent: false,
@@ -72,6 +73,7 @@ export default async function (): Promise<void> {
         'AccountFactory',
         [
             await implementation.getAddress(),
+            '0xb4e581f5',
             await registry.getAddress(),
             bytecodeHash,
             fundingWallet.address,
@@ -93,7 +95,7 @@ export default async function (): Promise<void> {
         callData: '0x',
     };
 
-    const salt = initialOwner.padEnd(66, '0');
+    const salt = keccak256(initialOwner);
     console.log("salt", salt);
     const initializer =
         '0xb4e581f5' +
@@ -108,7 +110,7 @@ export default async function (): Promise<void> {
                 [
                     initialOwner,
                     await eoaValidator.getAddress(),
-                    [],
+                    [await sessionKeyValidator.getAddress()],
                     [call.target, call.allowFailure, call.value, call.callData],
                 ],
             )

@@ -40,6 +40,7 @@ export default async function (): Promise<void> {
         implementation,
         registry,
         deploymentConfig.DEPLOYER_ADDRESS,
+        deploymentConfig.DEPLOYER_ADDRESS,
     );
 
     console.log({
@@ -62,7 +63,7 @@ const deployBatchCaller = async (): Promise<string> => {
 const deployImplementation = async (
     batchCallerAdddress: string,
 ): Promise<string> => {
-    const contractArtifactName = 'ClaveImplementation';
+    const contractArtifactName = 'AGWAccount';
     const result = await deployContract(hre, contractArtifactName, [
         batchCallerAdddress,
     ]);
@@ -70,7 +71,7 @@ const deployImplementation = async (
 };
 
 const deployRegistry = async (): Promise<string> => {
-    const contractArtifactName = 'ClaveRegistry';
+    const contractArtifactName = 'AGWRegistry';
     const result = await deployContract(hre, contractArtifactName);
     return await result.getAddress();
 };
@@ -90,7 +91,7 @@ const deployPaymaster = async (
 const deployClaveProxy = async (
     implementationAddress: string,
 ): Promise<string> => {
-    const contractArtifactName = 'ClaveProxy';
+    const contractArtifactName = 'AccountProxy';
     const result = await deployContract(hre, contractArtifactName, [
         implementationAddress,
     ]);
@@ -107,6 +108,7 @@ const deployFactory = async (
     implementationAddress: string,
     registryAddress: string,
     deployer: string,
+    owner: string,
 ): Promise<string> => {
     const proxyArtifact = await hre.artifacts.readArtifact('ClaveProxy');
     const bytecode = proxyArtifact.bytecode;
@@ -115,9 +117,11 @@ const deployFactory = async (
     const contractArtifactName = 'AccountFactory';
     const result = await deployContract(hre, contractArtifactName, [
         implementationAddress,
+        "0xb4e581f5",
         registryAddress,
         bytecodeHash,
         deployer,
+        owner,
     ]);
 
     const registryArtifact = await hre.artifacts.readArtifact('ClaveRegistry');
