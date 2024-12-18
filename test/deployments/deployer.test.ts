@@ -98,8 +98,8 @@ describe('AGW Contracts - Deployer class tests', () => {
             const accountAddress = await account.getAddress();
             const factoryAddress = await factory.getAddress();
 
-            expect(await registry.isClave(accountAddress)).to.be.true;
-            expect(await registry.isClave(factoryAddress)).not.to.be.true;
+            expect(await registry.isAGW(accountAddress)).to.be.true;
+            expect(await registry.isAGW(factoryAddress)).not.to.be.true;
         });
 
         it('should not deploy an account with an invalid salt', async () => {
