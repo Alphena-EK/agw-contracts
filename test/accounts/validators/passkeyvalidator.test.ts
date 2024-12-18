@@ -24,7 +24,7 @@ import { addR1Validator } from '../../utils/managers/validatormanager';
 import { encodePublicKey, genKey } from '../../utils/p256';
 import { addR1Key } from '../../utils/managers/ownermanager';
 
-describe('Clave Contracts - Passkey Validator tests', () => {
+describe('AGW Contracts - Passkey Validator tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;

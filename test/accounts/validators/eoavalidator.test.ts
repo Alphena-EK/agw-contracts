@@ -24,7 +24,7 @@ import {
     prepareMockTx,
 } from '../../utils/transactions';
 
-describe('Clave Contracts - EOA Validator tests', () => {
+describe('AGW Contracts - EOA Validator tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;

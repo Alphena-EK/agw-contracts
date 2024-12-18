@@ -6,7 +6,7 @@ import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libr
 import {ExcessivelySafeCall} from '@nomad-xyz/excessively-safe-call/src/ExcessivelySafeCall.sol';
 
 import {Auth} from '../auth/Auth.sol';
-import {ClaveStorage} from '../libraries/ClaveStorage.sol';
+import {AGWStorage} from '../libraries/AGWStorage.sol';
 import {AddressLinkedList} from '../libraries/LinkedList.sol';
 import {Errors} from '../libraries/Errors.sol';
 import {IExecutionHook, IValidationHook} from '../interfaces/IHook.sol';
@@ -221,7 +221,7 @@ abstract contract HookManager is IHookManager, Auth {
         view
         returns (mapping(address => address) storage validationHooks)
     {
-        validationHooks = ClaveStorage.layout().validationHooks;
+        validationHooks = AGWStorage.layout().validationHooks;
     }
 
     function _executionHooksLinkedList()
@@ -229,7 +229,7 @@ abstract contract HookManager is IHookManager, Auth {
         view
         returns (mapping(address => address) storage executionHooks)
     {
-        executionHooks = ClaveStorage.layout().executionHooks;
+        executionHooks = AGWStorage.layout().executionHooks;
     }
 
     function _hookDataStore()
@@ -237,7 +237,7 @@ abstract contract HookManager is IHookManager, Auth {
         view
         returns (mapping(address => mapping(bytes32 => bytes)) storage hookDataStore)
     {
-        hookDataStore = ClaveStorage.layout().hookDataStore;
+        hookDataStore = AGWStorage.layout().hookDataStore;
     }
 
     function _supportsHook(address hook, bool isValidation) internal view returns (bool) {

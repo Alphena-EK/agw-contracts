@@ -23,7 +23,7 @@ import { ethTransfer, prepareTeeTx } from '../../utils/transactions';
 import { encodePublicKey } from '../../utils/p256';
 import { addR1Key } from '../../utils/managers/ownermanager';
 
-describe('Clave Contracts - Validator Manager tests', () => {
+describe('AGW Contracts - Validator Manager tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;

@@ -4,13 +4,13 @@ pragma solidity ^0.8.17;
 import {ERC165Checker} from '@openzeppelin/contracts/utils/introspection/ERC165Checker.sol';
 import {ExcessivelySafeCall} from '@nomad-xyz/excessively-safe-call/src/ExcessivelySafeCall.sol';
 
-import {ClaveStorage} from '../libraries/ClaveStorage.sol';
+import {AGWStorage} from '../libraries/AGWStorage.sol';
 import {Auth} from '../auth/Auth.sol';
 import {AddressLinkedList} from '../libraries/LinkedList.sol';
 import {Errors} from '../libraries/Errors.sol';
 import {IModule} from '../interfaces/IModule.sol';
 import {IInitable} from '../interfaces/IInitable.sol';
-import {IClaveAccount} from '../interfaces/IClave.sol';
+import {IAGWAccount} from '../interfaces/IAGWAccount.sol';
 import {IModuleManager} from '../interfaces/IModuleManager.sol';
 
 /**
@@ -106,7 +106,7 @@ abstract contract ModuleManager is IModuleManager, Auth {
         view
         returns (mapping(address => address) storage modules)
     {
-        modules = ClaveStorage.layout().modules;
+        modules = AGWStorage.layout().modules;
     }
 
     function _supportsModule(address module) internal view returns (bool) {

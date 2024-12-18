@@ -16,7 +16,7 @@ import { addHook, removeHook } from '../../utils/managers/hookmanager';
 import { HOOKS, VALIDATORS } from '../../utils/names';
 import { ethTransfer, prepareEOATx } from '../../utils/transactions';
 
-describe('Clave Contracts - Hook Manager tests', () => {
+describe('AGW Contracts - Hook Manager tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;

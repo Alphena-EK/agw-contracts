@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import {IModule} from '../../interfaces/IModule.sol';
 import {IEmailRecoveryModule} from '../../interfaces/IEmailRecoveryModule.sol';
-import {IClaveAccount} from '../../interfaces/IClave.sol';
+import {IAGWAccount} from '../../interfaces/IAGWAccount.sol';
 import {Errors} from '../../libraries/Errors.sol';
 import {IERC165} from '@openzeppelin/contracts/utils/introspection/IERC165.sol';
 import {EmailRecoveryManager, GuardianManager} from '../../EmailRecoveryManager.sol';
@@ -40,7 +40,7 @@ contract EmailRecoveryModule is EmailRecoveryManager, IModule, IEmailRecoveryMod
             revert Errors.ALREADY_INITED();
         }
 
-        if (!IClaveAccount(msg.sender).isModule(address(this))) {
+        if (!IAGWAccount(msg.sender).isModule(address(this))) {
             revert Errors.MODULE_NOT_ADDED_CORRECTLY();
         }
 
@@ -78,7 +78,7 @@ contract EmailRecoveryModule is EmailRecoveryManager, IModule, IEmailRecoveryMod
     }
 
     function recover(address account, bytes calldata newOwner) internal override {
-        IClaveAccount(account).resetOwners(newOwner);
+        IAGWAccount(account).resetOwners(newOwner);
 
         emit RecoveryExecuted(account, newOwner);
     }

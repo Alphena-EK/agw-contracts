@@ -24,7 +24,7 @@ import {
 } from '../../utils/recovery/recovery';
 import { addR1Validator } from '../../utils/managers/validatormanager';
 
-describe('Clave Contracts - Cloud Recovery tests', () => {
+describe('AGW Contracts - Cloud Recovery tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;

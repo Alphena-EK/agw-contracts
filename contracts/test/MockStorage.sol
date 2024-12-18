@@ -2,9 +2,9 @@
 pragma solidity ^0.8.17;
 
 library MockStorage {
-    //keccak256('clave.contracts.ClaveStorage') - 1
-    bytes32 private constant CLAVE_STORAGE_SLOT =
-        0x3248da1aeae8bd923cbf26901dc4bfc6bb48bb0fbc5b6102f1151fe7012884f4;
+    //keccak256('agw.contracts.AGWStorage') - 1
+    bytes32 private constant AGW_STORAGE_SLOT =
+        0x67641650ff26a63f6b1fb8b1cb96de5bac5c28fcfcca35c9518ea6966d32d42d;
 
     struct Layout {
         // ┌───────────────────┐
@@ -48,7 +48,7 @@ library MockStorage {
     }
 
     function layout() internal pure returns (Layout storage l) {
-        bytes32 slot = CLAVE_STORAGE_SLOT;
+        bytes32 slot = AGW_STORAGE_SLOT;
         assembly {
             l.slot := slot
         }

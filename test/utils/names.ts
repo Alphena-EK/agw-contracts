@@ -5,9 +5,9 @@
  */
 
 export const CONTRACT_NAMES = {
-    REGISTRY: 'ClaveRegistry',
-    IMPLEMENTATION: 'ClaveImplementation',
-    PROXY: 'ClaveProxy',
+    REGISTRY: 'AGWRegistry',
+    IMPLEMENTATION: 'AGWAccount',
+    PROXY: 'AccountProxy',
     FACTORY: 'AccountFactory',
     MOCK_VALIDATOR: 'MockValidator',
 };

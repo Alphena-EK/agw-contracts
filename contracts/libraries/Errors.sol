@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 library Errors {
     /*//////////////////////////////////////////////////////////////
-                               CLAVE
+                               AGW
     //////////////////////////////////////////////////////////////*/
 
     error INSUFFICIENT_FUNDS(); // 0xe7931438
@@ -117,7 +117,7 @@ library Errors {
     error INVALID_MARKUP(); // 0x4af7ffe3
     error USER_LIMIT_REACHED(); // 0x07235346
     error INVALID_USER_LIMIT(); // 0x2640fa41
-    error NOT_CLAVE_ACCOUNT(); // 0x81566ee0
+    error NOT_AGW_ACCOUNT(); // 0x1ae1d6fd
     error EXCEEDS_MAX_SPONSORED_ETH(); // 0x3f379f40
 
     /*//////////////////////////////////////////////////////////////

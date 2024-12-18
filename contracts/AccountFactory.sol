@@ -6,10 +6,12 @@ import {SystemContractsCaller} from '@matterlabs/zksync-contracts/l2/system-cont
 import {Ownable, Ownable2Step} from '@openzeppelin/contracts/access/Ownable2Step.sol';
 
 import {Errors} from './libraries/Errors.sol';
-import {IClaveRegistry} from './interfaces/IClaveRegistry.sol';
+import {IAGWRegistry} from './interfaces/IAGWRegistry.sol';
 
 /**
- * @title Factory contract to create Clave accounts in zkSync Era
+ * @title Factory contract to create AGW accounts
+ * @dev Forked from Clave for Abstract
+ * @author https://abs.xyz
  * @author https://getclave.io
  */
 contract AccountFactory is Ownable2Step {
@@ -23,22 +25,22 @@ contract AccountFactory is Ownable2Step {
 
     // Account creation bytecode hash
     bytes32 public proxyBytecodeHash;
-    // Account authorized to deploy Clave accounts
+    // Account authorized to deploy AGW accounts
     address public deployer;
     // Mapping to store the deployer of each account
     mapping (address => address) public accountToDeployer;
 
     /**
-     * @notice Event emmited when a new Clave account is created
-     * @param accountAddress Address of the newly created Clave account
+     * @notice Event emmited when a new AGW account is created
+     * @param accountAddress Address of the newly created AGW account
      */
-    event ClaveAccountCreated(address indexed accountAddress);
+    event AGWAccountCreated(address indexed accountAddress);
 
     /**
-     * @notice Event emmited when a new Clave account is deployed
-     * @param accountAddress Address of the newly deployed Clave account
+     * @notice Event emmited when a new AGW account is deployed
+     * @param accountAddress Address of the newly deployed AGW account
      */
-    event ClaveAccountDeployed(address indexed accountAddress);
+    event AGWAccountDeployed(address indexed accountAddress);
 
     /**
      * @notice Event emmited when the deployer account is changed
@@ -62,8 +64,8 @@ contract AccountFactory is Ownable2Step {
      * @notice Constructor function of the factory contract
      * @param _implementation address     - Address of the implementation contract
      * @param _registry address           - Address of the registry contract
-     * @param _proxyBytecodeHash address - Hash of the bytecode of the clave proxy contract
-     * @param _deployer address           - Address of the account authorized to deploy Clave accounts
+     * @param _proxyBytecodeHash address - Hash of the bytecode of the AGW proxy contract
+     * @param _deployer address           - Address of the account authorized to deploy AGW accounts
      */
     constructor(
         address _implementation,
@@ -81,11 +83,11 @@ contract AccountFactory is Ownable2Step {
     }
 
     /**
-     * @notice Deploys a new Clave account
+     * @notice Deploys a new AGW account
      * @dev Account address depends only on salt
      * @param salt bytes32             - Salt to be used for the account creation
      * @param initializer bytes memory - Initializer data for the account
-     * @return accountAddress address - Address of the newly created Clave account
+     * @return accountAddress address - Address of the newly created AGW account
      */
     function deployAccount(
         bytes32 salt,
@@ -149,26 +151,26 @@ contract AccountFactory is Ownable2Step {
             revert Errors.INITIALIZATION_FAILED();
         }
 
-        IClaveRegistry(registry).register(accountAddress);
+        IAGWRegistry(registry).register(accountAddress);
 
-        emit ClaveAccountDeployed(accountAddress);
+        emit AGWAccountDeployed(accountAddress);
     }
 
     /**
-     * @notice To emit an event when a Clave account is created but not yet deployed
+     * @notice To emit an event when a AGW account is created but not yet deployed
      * @dev This event is so that we can index accounts that are created but not yet deployed
-     * @param accountAddress address - Address of the Clave account that was created
+     * @param accountAddress address - Address of the AGW account that was created
      */
-    function claveAccountCreated(address accountAddress) external {
+    function agwAccountCreated(address accountAddress) external {
         if (msg.sender != deployer) {
             revert Errors.NOT_FROM_DEPLOYER();
         }
-        emit ClaveAccountCreated(accountAddress);
+        emit AGWAccountCreated(accountAddress);
     }
 
     /**
-     * @notice Changes the account authorized to deploy Clave accounts
-     * @param newDeployer address - Address of the new account authorized to deploy Clave accounts
+     * @notice Changes the account authorized to deploy AGW accounts
+     * @param newDeployer address - Address of the new account authorized to deploy AGW accounts
      */
     function changeDeployer(address newDeployer) external onlyOwner {
         deployer = newDeployer;
@@ -198,9 +200,9 @@ contract AccountFactory is Ownable2Step {
     }
 
     /**
-     * @notice Returns the address of the Clave account that would be created with the given salt
+     * @notice Returns the address of the AGW account that would be created with the given salt
      * @param salt bytes32 - Salt to be used for the account creation
-     * @return accountAddress address - Address of the Clave account that would be created with the given salt
+     * @return accountAddress address - Address of the AGW account that would be created with the given salt
      */
     function getAddressForSalt(bytes32 salt) external view returns (address accountAddress) {
         accountAddress = IContractDeployer(DEPLOYER_SYSTEM_CONTRACT).getNewAddressCreate2(
@@ -212,10 +214,10 @@ contract AccountFactory is Ownable2Step {
     }
 
     /**
-     * @notice Returns the address of the Clave account that would be created with the given salt and implementation
+     * @notice Returns the address of the AGW account that would be created with the given salt and implementation
      * @param salt bytes32 - Salt to be used for the account creation
      * @param _implementation address - Address of the implementation contract
-     * @return accountAddress address - Address of the Clave account that would be created with the given salt and implementation
+     * @return accountAddress address - Address of the AGW account that would be created with the given salt and implementation
      */
     function getAddressForSaltAndImplementation(
         bytes32 salt,

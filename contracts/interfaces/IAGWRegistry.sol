@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.17;
 
-interface IClaveRegistry {
+interface IAGWRegistry {
     function register(address account) external;
 
-    function isClave(address account) external view returns (bool);
+    function isAGW(address account) external view returns (bool);
 }

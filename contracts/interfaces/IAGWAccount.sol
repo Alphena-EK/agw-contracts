@@ -15,11 +15,14 @@ import {IUpgradeManager} from './IUpgradeManager.sol';
 import {IValidatorManager} from './IValidatorManager.sol';
 
 /**
- * @title IClave
- * @notice Interface for the Clave contract
- * @dev Implementations of this interface are contract that can be used as a Clave
+ * @title IAGWAccount
+ * @notice Interface for the AGW contract
+ * @dev Implementations of this interface are contracts that can be used as an AGW account
+ * @dev Forked from Clave for Abstract
+ * @author https://getclave.io
+ * @author https://abs.xyz
  */
-interface IClaveAccount is
+interface IAGWAccount is
     IERC1271,
     IERC721Receiver,
     IERC1155Receiver,

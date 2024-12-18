@@ -21,7 +21,7 @@ import {
 import { VALIDATORS } from '../utils/names';
 import { ec } from 'elliptic';
 
-describe('Clave Contracts - Account tests', () => {
+describe('AGW Contracts - Account tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;

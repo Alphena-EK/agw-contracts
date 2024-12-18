@@ -16,7 +16,7 @@ import { ClaveDeployer } from '../utils/deployer';
 import { fixture } from '../utils/fixture';
 import { VALIDATORS } from '../utils/names';
 
-describe('Clave Contracts - Deployer class tests', () => {
+describe('AGW Contracts - Deployer class tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;
