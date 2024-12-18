@@ -1,6 +1,9 @@
-# Clave ZkSync Contracts
+# AGW Contracts
 
-<img src="logo.svg" alt="Clave">
+Smart contracts for Abstract Global Wallet (AGW) Infrastructure
+
+Adapted from [Clave](https://github.com/getclave/clave-contracts) for Abstract
+
 
 ## Project structure
 
@@ -27,6 +30,6 @@ PRIVATE_KEY=123cde574ccff....
 
 ## Official Links
 
--   [Website](https://getclave.io/)
--   [GitHub](https://github.com/getclave)
--   [Twitter](https://twitter.com/getclave)
+-   [Website](https://abs.xyz/)
+-   [GitHub](https://github.com/Abstract-Foundation)
+-   [Twitter](https://twitter.com/AbstractChain)
