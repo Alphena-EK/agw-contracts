@@ -39,7 +39,7 @@ export default async function (): Promise<void> {
 
     implementation = await deployContract(
         hre,
-        'ClaveImplementation',
+        'AGWAccount',
         [await batchCaller.getAddress()],
         {
             wallet: fundingWallet,
@@ -48,7 +48,7 @@ export default async function (): Promise<void> {
         'create2',
     );
 
-    registry = await deployContract(hre, 'ClaveRegistry',
+    registry = await deployContract(hre, 'AGWRegistry',
         [
             initialOwner,
         ], {
@@ -56,16 +56,16 @@ export default async function (): Promise<void> {
         silent: false,
     }, 'create2');
 
-    // Need this so the ClaveProxy artifact is valid
+    // Need this so the AccountProxy artifact is valid
     await deployContract(
         hre,
-        'ClaveProxy',
+        'AccountProxy',
         [await implementation.getAddress()],
         { wallet: fundingWallet, silent: true, noVerify: true },
         'create2',
     );
 
-    const accountProxyArtifact = await hre.zksyncEthers.loadArtifact('ClaveProxy');
+    const accountProxyArtifact = await hre.zksyncEthers.loadArtifact('AccountProxy');
     const bytecodeHash = utils.hashBytecode(accountProxyArtifact.bytecode);
     factory = await deployContract(
         hre,
@@ -121,7 +121,7 @@ export default async function (): Promise<void> {
 
     await verifyContract(hre, {
         address: accountAddress,
-        contract: "contracts/ClaveProxy.sol:ClaveProxy",
+        contract: "contracts/AccountProxy.sol:AccountProxy",
         constructorArguments: zeroPadValue(accountAddress, 32),
         bytecode: accountProxyArtifact.bytecode
     })
