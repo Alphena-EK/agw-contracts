@@ -22,7 +22,7 @@ import {
 } from '../utils/transactions';
 import { ec } from 'elliptic';
 
-describe('Clave Contracts - Gasless Paymaster tests', () => {
+describe('AGW Contracts - Gasless Paymaster tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;

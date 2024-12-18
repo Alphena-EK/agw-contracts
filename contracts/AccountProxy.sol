@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import {EfficientCall} from '@matterlabs/zksync-contracts/l2/system-contracts/libraries/EfficientCall.sol';
 
-contract ClaveProxy {
+contract AccountProxy {
     event Upgraded(address indexed implementation);
 
     //keccak-256 of "eip1967.proxy.implementation" subtracted by 1

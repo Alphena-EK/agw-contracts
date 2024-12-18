@@ -25,7 +25,7 @@ import {
 import { ethTransfer, prepareTeeTx } from '../../utils/transactions';
 import { addR1Validator } from '../../utils/managers/validatormanager';
 
-describe('Clave Contracts - Social Recovery tests', () => {
+describe('AGW Contracts - Social Recovery tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;

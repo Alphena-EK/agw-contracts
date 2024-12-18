@@ -6,7 +6,7 @@ import {Transaction} from '@matterlabs/zksync-contracts/l2/system-contracts/libr
 import {BOOTLOADER_FORMAL_ADDRESS} from '@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import {Errors} from '../libraries/Errors.sol';
-import {IClaveRegistry} from '../interfaces/IClaveRegistry.sol';
+import {IAGWRegistry} from '../interfaces/IAGWRegistry.sol';
 import {BootloaderAuth} from '../auth/BootloaderAuth.sol';
 
 /**
@@ -17,9 +17,9 @@ contract GaslessPaymaster is IPaymaster, Ownable, BootloaderAuth {
     uint256 public maxSponsoredEth = 0.001 ether;
     // User tx limit per paymaster
     uint256 public userLimit;
-    // Clave account registry contract
-    address public claveRegistry;
-    address public claveRegistry2;
+    // AGW account registry contract
+    address public agwRegistry;
+    address public agwRegistry2;
 
     // Store users sponsored tx count
     mapping(address => uint256) public userSponsored;
@@ -37,11 +37,11 @@ contract GaslessPaymaster is IPaymaster, Ownable, BootloaderAuth {
 
     /**
      * @notice Constructor functino of the paymaster
-     * @param registry address - Clave registry address
+     * @param registry address - AGW registry address
      * @param limit uint256    - User sponsorship limit
      */
     constructor(address registry, uint256 limit, address _owner) Ownable(_owner) {
-        claveRegistry = registry;
+        agwRegistry = registry;
         userLimit = limit;
     }
 
@@ -68,8 +68,8 @@ contract GaslessPaymaster is IPaymaster, Ownable, BootloaderAuth {
         if (limitlessAddresses[userAddress]) {
             // Allow limitlessAddresses to use paymaster freely
         } else if (
-            IClaveRegistry(claveRegistry).isClave(userAddress) ||
-            IClaveRegistry(claveRegistry2).isClave(userAddress)
+            IAGWRegistry(agwRegistry).isAGW(userAddress) ||
+            IAGWRegistry(agwRegistry2).isAGW(userAddress)
         ) {
             // Check if the account is a Clave account
             // Then, check the user sponsorship limit and decrease
@@ -77,7 +77,7 @@ contract GaslessPaymaster is IPaymaster, Ownable, BootloaderAuth {
             if (txAmount >= userLimit) revert Errors.USER_LIMIT_REACHED();
             userSponsored[userAddress]++;
         } else {
-            revert Errors.NOT_CLAVE_ACCOUNT();
+            revert Errors.NOT_AGW_ACCOUNT();
         }
 
         // Required ETH and token to pay fees
@@ -183,20 +183,20 @@ contract GaslessPaymaster is IPaymaster, Ownable, BootloaderAuth {
     }
 
     /**
-     * @notice Change the Clave registry address
-     * @param newRegistry address - New Clave registry address
+     * @notice Change the AGW registry address
+     * @param newRegistry address - New AGW registry address
      * @dev Only owner address can call this method
      */
-    function changeClaveRegistry(address newRegistry) external onlyOwner {
-        claveRegistry = newRegistry;
+    function changeRegistry(address newRegistry) external onlyOwner {
+        agwRegistry = newRegistry;
     }
 
     /**
-     * @notice Change the Clave registry2 address
-     * @param newRegistry address - New Clave registry2 address
+     * @notice Change the AGW registry2 address
+     * @param newRegistry address - New AGW registry2 address
      * @dev Only owner address can call this method
      */
-    function changeClaveRegistry2(address newRegistry) external onlyOwner {
-        claveRegistry2 = newRegistry;
+    function changeRegistry2(address newRegistry) external onlyOwner {
+        agwRegistry2 = newRegistry;
     }
 }

@@ -16,7 +16,7 @@ import { upgradeTx } from '../../utils/managers/upgrademanager';
 import { VALIDATORS } from '../../utils/names';
 import { HDNodeWallet } from 'ethers';
 
-describe('Clave Contracts - Upgrade Manager tests', () => {
+describe('AGW Contracts - Upgrade Manager tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;

@@ -24,7 +24,7 @@ import { addR1Validator } from '../../utils/managers/validatormanager';
 import { encodePublicKey } from '../../utils/p256';
 import { addR1Key } from '../../utils/managers/ownermanager';
 
-describe('Clave Contracts - TEE Validator tests', () => {
+describe('AGW Contracts - TEE Validator tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;

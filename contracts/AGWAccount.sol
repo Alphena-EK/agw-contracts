@@ -22,16 +22,18 @@ import {SignatureDecoder} from './libraries/SignatureDecoder.sol';
 import {ERC1271Handler} from './handlers/ERC1271Handler.sol';
 import {Call} from './batch/BatchCaller.sol';
 
-import {IClaveAccount} from './interfaces/IClave.sol';
+import {IAGWAccount} from './interfaces/IAGWAccount.sol';
 import {AccountFactory} from './AccountFactory.sol';
 import {BatchCaller} from './batch/BatchCaller.sol';
 
 /**
- * @title Main account contract for the Clave wallet infrastructure, forked for Abstract
+ * @title Main account contract for the Abstract Global Wallet infrastructure
+ * @dev Forked from Clave for Abstract
  * @dev The Abstract fork uses a K1 signer and validator initially
  * @author https://getclave.io
+ * @author https://abs.xyz
  */
-contract ClaveImplementation is
+contract AGWAccount is
     Initializable,
     UpgradeManager,
     HookManager,
@@ -39,7 +41,7 @@ contract ClaveImplementation is
     ERC1271Handler,
     TokenCallbackHandler,
     BatchCaller,
-    IClaveAccount
+    IAGWAccount
 {
     // Helper library for the Transaction struct
     using TransactionHelper for Transaction;
@@ -237,12 +239,12 @@ contract ClaveImplementation is
         transaction.processPaymasterInput();
     }
 
-    /// @dev type(IClave).interfaceId indicates Clave accounts
+    /// @dev type(IAGWAccount).interfaceId indicates AGW accounts
     function supportsInterface(
         bytes4 interfaceId
     ) public view override(IERC165, TokenCallbackHandler) returns (bool) {
         return
-            interfaceId == type(IClaveAccount).interfaceId || super.supportsInterface(interfaceId);
+            interfaceId == type(IAGWAccount).interfaceId || super.supportsInterface(interfaceId);
     }
 
     function _validateTransaction(

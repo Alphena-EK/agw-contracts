@@ -6,7 +6,7 @@ import {IERC165} from '@openzeppelin/contracts/utils/introspection/IERC165.sol';
 
 import {IValidationHook, IExecutionHook} from '../interfaces/IHook.sol';
 
-interface IClave {
+interface IAGWAccount {
     function setHookData(bytes32 key, bytes calldata data) external;
 
     function getHookData(address hook, bytes32 key) external view returns (bytes memory);
@@ -29,7 +29,7 @@ contract MockValidationHook is IValidationHook {
     }
 
     function setHookData(address account, bytes32 key, bytes calldata data) external {
-        IClave(account).setHookData(key, data);
+        IAGWAccount(account).setHookData(key, data);
     }
 
     function getHookData(
@@ -37,7 +37,7 @@ contract MockValidationHook is IValidationHook {
         address hook,
         bytes32 key
     ) external view returns (bytes memory) {
-        return IClave(account).getHookData(hook, key);
+        return IAGWAccount(account).getHookData(hook, key);
     }
 
     function isInited(address account) external view returns (bool) {
@@ -70,7 +70,7 @@ contract MockExecutionHook is IExecutionHook {
     }
 
     function setHookData(address account, bytes32 key, bytes calldata data) external {
-        IClave(account).setHookData(key, data);
+        IAGWAccount(account).setHookData(key, data);
     }
 
     function getHookData(
@@ -78,7 +78,7 @@ contract MockExecutionHook is IExecutionHook {
         address hook,
         bytes32 key
     ) external view returns (bytes memory) {
-        return IClave(account).getHookData(hook, key);
+        return IAGWAccount(account).getHookData(hook, key);
     }
 
     function isInited(address account) external view returns (bool) {

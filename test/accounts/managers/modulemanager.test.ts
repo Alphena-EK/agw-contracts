@@ -16,7 +16,7 @@ import { addModule, removeModule } from '../../utils/managers/modulemanager';
 import { VALIDATORS } from '../../utils/names';
 import { prepareEOATx } from '../../utils/transactions';
 
-describe('Clave Contracts - Module Manager tests', () => {
+describe('AGW Contracts - Module Manager tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;

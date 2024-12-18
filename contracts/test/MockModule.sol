@@ -5,7 +5,7 @@ import {IERC165} from '@openzeppelin/contracts/utils/introspection/IERC165.sol';
 
 import {IModule} from '../interfaces/IModule.sol';
 
-interface IClave {
+interface IAGWAccount {
     function executeFromModule(address to, uint256 value, bytes memory data) external;
 
     function k1AddOwner(address addr) external;
@@ -24,11 +24,11 @@ contract MockModule is IModule {
 
     function testExecuteFromModule(address account, address to) external {
         uint256 value = values[account];
-        IClave(account).executeFromModule(to, value, '');
+        IAGWAccount(account).executeFromModule(to, value, '');
     }
 
     function testOnlySelfOrModule(address account) external {
-        IClave(account).k1AddOwner(address(this));
+        IAGWAccount(account).k1AddOwner(address(this));
     }
 
     function isInited(address account) external view returns (bool) {

@@ -10,18 +10,20 @@ import {EIP712Upgradeable} from '@openzeppelin/contracts-upgradeable/utils/crypt
 /**
  * @title ERC1271Handler
  * @notice Contract which provides ERC1271 signature validation
+ * @dev Forked from Clave for Abstract
  * @author https://getclave.io
+ * @author https://abs.xyz
  */
 abstract contract ERC1271Handler is
     IERC1271,
     EIP712Upgradeable,
     ValidationHandler
 {
-    struct ClaveMessage {
+    struct AGWMessage {
         bytes32 signedHash;
     }
 
-    bytes32 constant _CLAVE_MESSAGE_TYPEHASH = keccak256('ClaveMessage(bytes32 signedHash)');
+    bytes32 constant _AGW_MESSAGE_TYPEHASH = keccak256('AGWMessage(bytes32 signedHash)');
 
     bytes4 private constant _ERC1271_MAGIC = 0x1626ba7e;
 
@@ -43,7 +45,7 @@ abstract contract ERC1271Handler is
             signatureAndValidator
         );
 
-        bytes32 eip712Hash = _hashTypedDataV4(_claveMessageHash(ClaveMessage(signedHash)));
+        bytes32 eip712Hash = _hashTypedDataV4(_agwMessageHash(AGWMessage(signedHash)));
 
         bool valid = _handleValidation(validator, eip712Hash, signature);
 
@@ -51,23 +53,23 @@ abstract contract ERC1271Handler is
     }
 
     /**
-     * @notice Returns the EIP-712 hash of the Clave message
-     * @param claveMessage ClaveMessage calldata - The message containing signedHash
+     * @notice Returns the EIP-712 hash of the AGW message
+     * @param agwMessage AGWMessage calldata - The message containing signedHash
      * @return bytes32 - EIP712 hash of the message
      */
-    function getEip712Hash(ClaveMessage calldata claveMessage) external view returns (bytes32) {
-        return _hashTypedDataV4(_claveMessageHash(claveMessage));
+    function getEip712Hash(AGWMessage calldata agwMessage) external view returns (bytes32) {
+        return _hashTypedDataV4(_agwMessageHash(agwMessage));
     }
 
     /**
-     * @notice Returns the typehash for the clave message struct
-     * @return bytes32 - Clave message typehash
+     * @notice Returns the typehash for the AGW message struct
+     * @return bytes32 - AGW message typehash
      */
-    function claveMessageTypeHash() external pure returns (bytes32) {
-        return _CLAVE_MESSAGE_TYPEHASH;
+    function agwMessageTypeHash() external pure returns (bytes32) {
+        return _AGW_MESSAGE_TYPEHASH;
     }
 
-    function _claveMessageHash(ClaveMessage memory claveMessage) internal pure returns (bytes32) {
-        return keccak256(abi.encode(_CLAVE_MESSAGE_TYPEHASH, claveMessage.signedHash));
+    function _agwMessageHash(AGWMessage memory agwMessage) internal pure returns (bytes32) {
+        return keccak256(abi.encode(_AGW_MESSAGE_TYPEHASH, agwMessage.signedHash));
     }
 }

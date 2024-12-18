@@ -26,7 +26,7 @@ import { encodePublicKey, genKey } from '../../utils/p256';
 import { ethTransfer, prepareEOATx, prepareTeeTx } from '../../utils/transactions';
 import { addR1Validator } from '../../utils/managers/validatormanager';
 
-describe('Clave Contracts - Owner Manager tests', () => {
+describe('AGW Contracts - Owner Manager tests', () => {
     let deployer: ClaveDeployer;
     let provider: Provider;
     let richWallet: Wallet;
