@@ -40,7 +40,7 @@ export default async function (): Promise<void> {
     implementation = await deployContract(
         hre,
         'ClaveImplementation',
-        [await batchCaller.getAddress()],
+        [await eoaValidator.getAddress()],
         {
             wallet: fundingWallet,
             silent: false,
