@@ -48,10 +48,13 @@ contract AGWAccount is
 
     uint256 public constant VERSION = 1;
 
+    address public immutable KNOWN_TRUSTED_EOA_VALIDATOR;
+
     /**
      * @notice Constructor for the account implementation
      */
-    constructor() {
+    constructor(address knownTrustedEoaValidator) {
+        KNOWN_TRUSTED_EOA_VALIDATOR = knownTrustedEoaValidator;
         _disableInitializers();
     }
 
@@ -76,14 +79,19 @@ contract AGWAccount is
         if (address(this) != expectedAddress) {
             revert Errors.INVALID_SALT();
         }
+
+        // add the initial k1 owner as an owner
+        _k1AddOwner(initialK1Owner);
+
         address thisDeployer = factory.accountToDeployer(address(this));
         if (thisDeployer != factory.deployer()) {
             if (initialK1Owner != thisDeployer) {
-                revert Errors.NOT_FROM_DEPLOYER();
+                // disregard any modules and initial call as the deployer is untrusted
+                _k1AddValidator(KNOWN_TRUSTED_EOA_VALIDATOR);
+                return;
             }
         }
 
-        _k1AddOwner(initialK1Owner);
         _k1AddValidator(initialK1Validator);
 
         for (uint256 i = 0; i < modules.length; ) {
