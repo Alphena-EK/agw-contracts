@@ -40,11 +40,11 @@ export class ClaveDeployer {
         );
     }
 
-    public async implementation(): Promise<Contract> {
+    public async implementation(eoaValidator: string): Promise<Contract> {
         return await deployContract(
             this.hre,
             CONTRACT_NAMES.IMPLEMENTATION,
-            [],
+            [eoaValidator],
             {
                 wallet: this.deployerWallet,
                 silent: true,
@@ -95,13 +95,13 @@ export class ClaveDeployer {
         return factory;
     }
 
-    public async setupFactory(): Promise<{
+    public async setupFactory(eoaValidator: string): Promise<{
         registry: Contract;
         implementation: Contract;
         factory: Contract;
     }> {
         const registry = await this.registry();
-        const implementation = await this.implementation();
+        const implementation = await this.implementation(eoaValidator);
         const factory = await this.factory(implementation, registry);
 
         return { registry, implementation, factory };

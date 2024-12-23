@@ -31,9 +31,9 @@ export const fixture = async (
     const wallet = HDNodeWallet.createRandom();
 
     const registry = await deployer.registry();
-    const implementation = await deployer.implementation();
-    const factory = await deployer.factory(implementation, registry);
     const eoaValidator = await deployer.validator(VALIDATORS.EOA);
+    const implementation = await deployer.implementation(await eoaValidator.getAddress());
+    const factory = await deployer.factory(implementation, registry);
     const teeValidator = await deployer.validator(VALIDATORS.TEE);
     const mockValidator = await deployer.validator(VALIDATORS.MOCK);
     const passkeyValidator = await deployer.validator(VALIDATORS.PASSKEY);
