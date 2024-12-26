@@ -3,127 +3,142 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-import {
-    ZeroAddress,
-    zeroPadValue
-} from 'ethers';
+import { ZeroAddress, zeroPadValue } from 'ethers';
 import * as hre from 'hardhat';
 import { Contract, Wallet, utils } from 'zksync-ethers';
 import { deployContract, getWallet, verifyContract } from '../deploy/utils';
 import type { CallStruct } from '../typechain-types/contracts/batch/BatchCaller';
-let fundingWallet: Wallet;
 
+// Global variables
+let fundingWallet: Wallet;
 let batchCaller: Contract;
 let eoaValidator: Contract;
 let implementation: Contract;
 let factory: Contract;
 let registry: Contract;
 
-// An example of a basic deploy script
-// Do not push modifications to this file
-// Just modify, interact then revert changes
+/**
+ * Deployment script for Clave contracts.
+ * Now includes enhanced logging, configuration, and execution timing.
+ */
 export default async function (): Promise<void> {
-    fundingWallet = getWallet(hre);
+    console.time("Deployment Total Time");
 
-    const initialOwner = fundingWallet.address;
+    try {
+        // Initialize wallet
+        fundingWallet = getWallet(hre);
+        const initialOwner = fundingWallet.address;
 
-     await deployContract(hre, 'BatchCaller', undefined, {
-        wallet: fundingWallet,
-        silent: false,
-    }, 'create');
+        console.log("Funding Wallet Address:", fundingWallet.address);
 
-    eoaValidator = await deployContract(hre, 'EOAValidator', undefined, {
-        wallet: fundingWallet,
-        silent: false,
-    }, 'create2');
+        // Deploy contracts
+        console.time("BatchCaller Deployment");
+        batchCaller = await deployContract(hre, 'BatchCaller', undefined, { wallet: fundingWallet, silent: false }, 'create');
+        console.timeEnd("BatchCaller Deployment");
 
-    implementation = await deployContract(
-        hre,
-        'ClaveImplementation',
-        [await eoaValidator.getAddress()],
-        {
-            wallet: fundingWallet,
-            silent: false,
-        },
-        'create2',
-    );
+        console.time("EOAValidator Deployment");
+        eoaValidator = await deployContract(hre, 'EOAValidator', undefined, { wallet: fundingWallet, silent: false }, 'create2');
+        console.timeEnd("EOAValidator Deployment");
 
-    registry = await deployContract(hre, 'ClaveRegistry',
-        [
-            initialOwner,
-        ], {
-        wallet: fundingWallet,
-        silent: false,
-    }, 'create2');
+        console.time("ClaveImplementation Deployment");
+        implementation = await deployContract(
+            hre,
+            'ClaveImplementation',
+            [await eoaValidator.getAddress()],
+            { wallet: fundingWallet, silent: false },
+            'create2',
+        );
+        console.timeEnd("ClaveImplementation Deployment");
 
-    // Need this so the ClaveProxy artifact is valid
-    await deployContract(
-        hre,
-        'ClaveProxy',
-        [await implementation.getAddress()],
-        { wallet: fundingWallet, silent: true, noVerify: true },
-        'create2',
-    );
+        console.time("ClaveRegistry Deployment");
+        registry = await deployContract(hre, 'ClaveRegistry', [initialOwner], { wallet: fundingWallet, silent: false }, 'create2');
+        console.timeEnd("ClaveRegistry Deployment");
 
-    const accountProxyArtifact = await hre.zksyncEthers.loadArtifact('ClaveProxy');
-    const bytecodeHash = utils.hashBytecode(accountProxyArtifact.bytecode);
-    factory = await deployContract(
-        hre,
-        'AccountFactory',
-        [
-            await implementation.getAddress(),
-            await registry.getAddress(),
-            bytecodeHash,
-            fundingWallet.address,
-            initialOwner,
-        ],
-        {
-            wallet: fundingWallet,
-            silent: false,
-        },
-        'create2',
-    );
-    await registry.setFactory(await factory.getAddress());
+        // Deploy ClaveProxy to validate artifact
+        console.time("ClaveProxy Deployment");
+        await deployContract(
+            hre,
+            'ClaveProxy',
+            [await implementation.getAddress()],
+            { wallet: fundingWallet, silent: true, noVerify: true },
+            'create2',
+        );
+        console.timeEnd("ClaveProxy Deployment");
 
-    const abiCoder = hre.ethers.AbiCoder.defaultAbiCoder();
-    const call: CallStruct = {
-        target: ZeroAddress,
-        allowFailure: false,
-        value: 0,
-        callData: '0x',
-    };
+        // Prepare bytecode and deploy AccountFactory
+        const accountProxyArtifact = await hre.zksyncEthers.loadArtifact('ClaveProxy');
+        const bytecodeHash = utils.hashBytecode(accountProxyArtifact.bytecode);
 
-    const salt = initialOwner.padEnd(66, '0');
-    console.log("salt", salt);
-    const initializer =
-        '0xb4e581f5' +
-        abiCoder
-            .encode(
-                [
-                    'address',
-                    'address',
-                    'bytes[]',
-                    'tuple(address target,bool allowFailure,uint256 value,bytes calldata)',
-                ],
-                [
-                    initialOwner,
-                    await eoaValidator.getAddress(),
-                    [],
-                    [call.target, call.allowFailure, call.value, call.callData],
-                ],
-            )
-            .slice(2);
+        console.time("AccountFactory Deployment");
+        factory = await deployContract(
+            hre,
+            'AccountFactory',
+            [
+                await implementation.getAddress(),
+                await registry.getAddress(),
+                bytecodeHash,
+                fundingWallet.address,
+                initialOwner,
+            ],
+            { wallet: fundingWallet, silent: false },
+            'create2',
+        );
+        console.timeEnd("AccountFactory Deployment");
 
-    const tx = await factory.deployAccount(salt, initializer);
-    await tx.wait();
+        // Set factory in registry
+        await registry.setFactory(await factory.getAddress());
 
-    const accountAddress = await factory.getAddressForSalt(salt);
+        // Prepare and deploy account
+        const salt = initialOwner.padEnd(66, '0');
+        console.log("Salt:", salt);
 
-    await verifyContract(hre, {
-        address: accountAddress,
-        contract: "contracts/ClaveProxy.sol:ClaveProxy",
-        constructorArguments: zeroPadValue(accountAddress, 32),
-        bytecode: accountProxyArtifact.bytecode
-    })
-    console.log("accountAddress", accountAddress)
+        const abiCoder = hre.ethers.AbiCoder.defaultAbiCoder();
+        const call: CallStruct = {
+            target: ZeroAddress,
+            allowFailure: false,
+            value: 0,
+            callData: '0x',
+        };
+
+        const initializer =
+            '0xb4e581f5' +
+            abiCoder
+                .encode(
+                    [
+                        'address',
+                        'address',
+                        'bytes[]',
+                        'tuple(address target,bool allowFailure,uint256 value,bytes calldata)',
+                    ],
+                    [
+                        initialOwner,
+                        await eoaValidator.getAddress(),
+                        [],
+                        [call.target, call.allowFailure, call.value, call.callData],
+                    ],
+                )
+                .slice(2);
+
+        console.time("Account Deployment");
+        const tx = await factory.deployAccount(salt, initializer);
+        await tx.wait();
+        console.timeEnd("Account Deployment");
+
+        const accountAddress = await factory.getAddressForSalt(salt);
+        console.log("Account Address:", accountAddress);
+
+        // Verify the deployed account
+        await verifyContract(hre, {
+            address: accountAddress,
+            contract: "contracts/ClaveProxy.sol:ClaveProxy",
+            constructorArguments: zeroPadValue(accountAddress, 32),
+            bytecode: accountProxyArtifact.bytecode,
+        });
+
+        console.log("Contract verification completed successfully.");
+    } catch (error) {
+        console.error("Deployment failed with error:", error);
+    } finally {
+        console.timeEnd("Deployment Total Time");
+    }
 }
